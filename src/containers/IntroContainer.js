@@ -127,7 +127,9 @@ class IntroContainer extends React.Component {
                 </Typography>
             </Grid>
             <Grid container justify='flex-start' direction='column' alignItems='center'>
-                <Button onClick={initLocalWeb3}
+                <Button onClick={() => {
+                        initLocalWeb3('injected')
+                    }}
                     disabled={requesting}
                     className={classes.button}
                     size='large'

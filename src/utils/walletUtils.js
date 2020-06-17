@@ -1,9 +1,8 @@
 import Web3 from "web3";
 import GatewayJS from '@renproject/gateway'
 import Box from '3box'
-
-import DetectNetwork from "web3-detect-network";
 import Web3Modal from 'web3modal'
+import MEWconnect from "@myetherwallet/mewconnect-web-client"
 
 import BTC from '../assets/btc.png'
 import ETH from '../assets/eth.png'
@@ -26,8 +25,6 @@ import {
 } from './web3Utils'
 
 import {
-    initMonitoring,
-    // gatherFeeData,
     recoverTrades
 } from './txUtils'
 
@@ -158,7 +155,6 @@ export const updateMarketData = async function() {
     }
 }
 
-
 export const updateBalance = async function() {
     const store = getStore()
 
@@ -208,7 +204,7 @@ export const initDataWeb3 = async function() {
    store.set('dataWeb3', new Web3(`https://${network === 'testnet' ? 'kovan' : 'mainnet'}.infura.io/v3/7be66f167c2e4a05981e2ffc4653dec2`))
 }
 
-export const initLocalWeb3 = async function() {
+export const initLocalWeb3 = async function(type) {
     const store = getStore()
 
     // already connected
@@ -219,47 +215,42 @@ export const initLocalWeb3 = async function() {
     store.set('spaceError', false)
     const selectedNetwork = store.get('selectedNetwork')
 
-    // web3 modal
-    const providerOptions = {}
-    const web3Modal = new Web3Modal({
-        network: selectedNetwork === 'testnet' ? "kovan" : 'mainnet', // optional
-        cacheProvider: false, // optional
-        providerOptions // required
-    })
-    const web3Provider = await web3Modal.connect()
-
-    // manual connect to injected web3
-    // let web3Provider;
-    //
-    // if (window.ethereum) {
-    //     web3Provider = window.ethereum;
-    //     try {
-    //         // Request account access
-    //         await window.ethereum.enable();
-    //     } catch (error) {
-    //         console.log(error)
-    //         return
-    //     }
-    // }
-    // // Legacy dApp browsers...
-    // else if (window.web3) {
-    //     web3Provider = window.web3.currentProvider;
-    // }
-    // // If no injected web3 instance is detected, fall back to Ganache
-    // else {
-    //     return
-    // }
-
-    const web3 = new Web3(web3Provider)
-    const currentProvider = web3.currentProvider
-    const accounts = await web3.eth.getAccounts()
-    // console.log('accounts', accounts)
+    let web3
+    let currentProvider
+    let accounts = []
     let network = ''
-    if (currentProvider.networkVersion === '1') {
-        network = 'mainnet'
-    } else if (currentProvider.networkVersion === '42' ||
-      (currentProvider.authereum && currentProvider.authereum.networkId === 42)) {
-        network = 'testnet'
+
+    if (type === 'injected') {
+        const providerOptions = {}
+        const web3Modal = new Web3Modal({
+            network: selectedNetwork === 'testnet' ? "kovan" : 'mainnet',
+            cacheProvider: false,
+            providerOptions
+        })
+        const web3Provider = await web3Modal.connect()
+
+        web3 = new Web3(web3Provider)
+        currentProvider = web3.currentProvider
+        accounts = await web3.eth.getAccounts()
+        if (currentProvider.networkVersion === '1') {
+            network = 'mainnet'
+        } else if (currentProvider.networkVersion === '42') {
+            network = 'testnet'
+        }
+    } else if (type === 'mew-connect') {
+        const chainId = selectedNetwork === 'testnet' ? 42 : 1
+        const mewConnect = new MEWconnect.Provider()
+        const web3Provider = mewConnect.makeWeb3Provider(chainId)
+
+        web3 = new Web3(web3Provider)
+        currentProvider = web3.currentProvider
+        accounts = await web3Provider.enable()
+        network = selectedNetwork
+    } else {
+        console.log('invalid wallet type')
+        store.set('spaceError', true)
+        store.set('spaceRequesting', false)
+        return
     }
 
     if (selectedNetwork !== network) {
@@ -272,14 +263,6 @@ export const initLocalWeb3 = async function() {
         store.set('spaceRequesting', true)
         // console.log(currentProvider, accounts)
         const box = await Box.openBox(accounts[0], currentProvider)
-
-        // alternate
-        // const provider = await Box.get3idConnectProvider()
-        // const box = await Box.create(provider)
-        // const auth = await box.auth(["ren-bridge"], {
-        //     address: accounts[0]
-        // })
-        // console.log(auth)
 
         store.set('box', box)
         // console.log(box)
@@ -300,21 +283,23 @@ export const initLocalWeb3 = async function() {
             updateBalance()
         }, 100)
 
-        // listen for changes
-        currentProvider.on('accountsChanged', async () => {
-            resetWallet()
-            initLocalWeb3()
-        })
+        if (currentProvider.on) {
+            // listen for changes
+            currentProvider.on('accountsChanged', async () => {
+                resetWallet()
+                initLocalWeb3()
+            })
 
-        currentProvider.on('chainChanged', async () => {
-            resetWallet()
-            initLocalWeb3()
-        })
+            currentProvider.on('chainChanged', async () => {
+                resetWallet()
+                initLocalWeb3()
+            })
 
-        currentProvider.on('networkChanged', async () => {
-            resetWallet()
-            initLocalWeb3()
-        })
+            currentProvider.on('networkChanged', async () => {
+                resetWallet()
+                initLocalWeb3()
+            })
+        }
     } catch(e) {
         console.log(e)
         store.set('spaceError', true)

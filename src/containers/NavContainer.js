@@ -165,7 +165,7 @@ class NavContainer extends React.Component {
                           color={''}
                           onClick={() => {
                               if (!walletAddress) {
-                                  initLocalWeb3()
+                                  initLocalWeb3('injected')
                               }
                           }} variant="outlined" className={classNames(classes.accountButton, walletAddress && classes.disabled)}>
                           {walletAddress ? <div>
