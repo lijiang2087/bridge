@@ -75,6 +75,24 @@ const styles = (theme) => ({
         animationDuration: '550ms',
         position: 'absolute',
         left: 0,
+    },
+    disclosure: {
+        width: '100%',
+        maxWidth: 370,
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        textAlign: 'center',
+        boxShadow: '0px 1px 2px rgba(0, 27, 58, 0.05)',
+        padding: theme.spacing(2),
+        color: theme.palette.primary.main,
+        border: '1px solid ' + theme.palette.primary.main,
+        fontSize: 12,
+        lineHeight: '17px',
+        borderRadius: 4,
+        marginBottom: theme.spacing(3),
+        [theme.breakpoints.down('sm')]: {
+            maxWidth: '100%',
+        },
     }
 })
 
@@ -111,62 +129,71 @@ class IntroContainer extends React.Component {
             }
         }
 
-        return <div className={classes.container}>
-            <Typography className={classes.title} variant='h2'>
-                Bitcoin, Zcash and Bitcoin Cash on&nbsp;Ethereum.
-            </Typography>
-            <Typography className={classes.subtitle} variant='p'>
-                The safe, fast and most secure way to bring cross-chain assets to&nbsp;Ethereum.
-            </Typography>
-            <Grid className={classes.metamask} container justify='center'>
-                <img src={MetaMask} />
-            </Grid>
-            <Grid container justify='center'>
-                <Typography className={classes.message} variant='p'>
-                    To mint or release assets, connect your&nbsp;wallet.
+        return <React.Fragment>
+            {/*<Grid container>
+              <div className={classes.disclosure}>
+                  <Typography variant='p'>
+                      RenBridge is currently down for maintenance. Please check back again&nbsp;later.
+                  </Typography>
+              </div>
+            </Grid>*/}
+            <div className={classes.container}>
+                <Typography className={classes.title} variant='h2'>
+                    Bitcoin, Zcash and Bitcoin Cash on&nbsp;Ethereum.
                 </Typography>
-            </Grid>
-            <Grid container justify='flex-start' direction='column' alignItems='center'>
-                <Button onClick={() => {
-                        initLocalWeb3('injected')
-                    }}
-                    disabled={requesting}
-                    className={classes.button}
-                    size='large'
-                    color='primary'
-                    disableRipple
-                    variant='contained'>
-                    {requesting && <div className={classes.spinner}>
-                          <CircularProgress
-                            variant="determinate"
-                            value={100}
-                            className={classes.spinnerTop}
-                            size={18}
-                            thickness={4}
-                          />
-                          <CircularProgress
-                            variant="indeterminate"
-                            disableShrink
-                            className={classes.spinnerBottom}
-                            size={18}
-                            thickness={4}
-                          />
-                    </div>}
-                    {text}
-                </Button>
-                {!requesting && error && <Typography variant='caption' className={classes.error}>
-                    Connection failed. Please note: hardware wallets are not supported at this&nbsp;time.
-                </Typography>}
-                {requesting && <React.Fragment>
-                  <Typography variant='caption' className={classes.info}>
-                      Connecting to decentalized storage, this may take a minute.
-                  </Typography>
-                  <Typography variant='caption' className={classes.info2}>
-                      Please approve any 3box messages that appear in your wallet.
-                  </Typography>
-                </React.Fragment>}
-            </Grid>
-        </div>
+                <Typography className={classes.subtitle} variant='p'>
+                    The safe, fast and most secure way to bring cross-chain assets to&nbsp;Ethereum.
+                </Typography>
+                <Grid className={classes.metamask} container justify='center'>
+                    <img src={MetaMask} />
+                </Grid>
+                <Grid container justify='center'>
+                    <Typography className={classes.message} variant='p'>
+                        To mint or release assets, connect your&nbsp;wallet.
+                    </Typography>
+                </Grid>
+                <Grid container justify='flex-start' direction='column' alignItems='center'>
+                    <Button onClick={() => {
+                            initLocalWeb3('injected')
+                        }}
+                        disabled={requesting}
+                        className={classes.button}
+                        size='large'
+                        color='primary'
+                        disableRipple
+                        variant='contained'>
+                        {requesting && <div className={classes.spinner}>
+                              <CircularProgress
+                                variant="determinate"
+                                value={100}
+                                className={classes.spinnerTop}
+                                size={18}
+                                thickness={4}
+                              />
+                              <CircularProgress
+                                variant="indeterminate"
+                                disableShrink
+                                className={classes.spinnerBottom}
+                                size={18}
+                                thickness={4}
+                              />
+                        </div>}
+                        {text}
+                    </Button>
+                    {!requesting && error && <Typography variant='caption' className={classes.error}>
+                        Connection failed. Please note: hardware wallets are not supported at this&nbsp;time.
+                    </Typography>}
+                    {requesting && <React.Fragment>
+                      <Typography variant='caption' className={classes.info}>
+                          Connecting to decentalized storage, this may take a minute.
+                      </Typography>
+                      <Typography variant='caption' className={classes.info2}>
+                          Please approve any 3box messages that appear in your wallet.
+                      </Typography>
+                    </React.Fragment>}
+                </Grid>
+            </div>
+        </React.Fragment>
     }
 }
 

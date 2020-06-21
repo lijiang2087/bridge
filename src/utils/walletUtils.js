@@ -2,7 +2,7 @@ import Web3 from "web3";
 import GatewayJS from '@renproject/gateway'
 import Box from '3box'
 import Web3Modal from 'web3modal'
-import MEWconnect from "@myetherwallet/mewconnect-web-client"
+// import MEWconnect from "@myetherwallet/mewconnect-web-client"
 
 import BTC from '../assets/btc.png'
 import ETH from '../assets/eth.png'
@@ -238,14 +238,14 @@ export const initLocalWeb3 = async function(type) {
             network = 'testnet'
         }
     } else if (type === 'mew-connect') {
-        const chainId = selectedNetwork === 'testnet' ? 42 : 1
-        const mewConnect = new MEWconnect.Provider()
-        const web3Provider = mewConnect.makeWeb3Provider(chainId)
-
-        web3 = new Web3(web3Provider)
-        currentProvider = web3.currentProvider
-        accounts = await web3Provider.enable()
-        network = selectedNetwork
+        // const chainId = selectedNetwork === 'testnet' ? 42 : 1
+        // const mewConnect = new MEWconnect.Provider()
+        // const web3Provider = mewConnect.makeWeb3Provider(chainId)
+        //
+        // web3 = new Web3(web3Provider)
+        // currentProvider = web3.currentProvider
+        // accounts = await web3Provider.enable()
+        // network = selectedNetwork
     } else {
         console.log('invalid wallet type')
         store.set('spaceError', true)
